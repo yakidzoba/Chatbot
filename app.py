@@ -4,11 +4,12 @@ from chatterbot.trainers import ChatterBotCorpusTrainer
 
 app = Flask(__name__)
 
-english_bot = ChatBot("Chatterbot", storage_adapter="chatterbot.storage.SQLStorageAdapter")
+chatbot = ChatBot("Rocket", storage_adapter="chatterbot.storage.SQLStorageAdapter")
 
-english_bot.set_trainer(ChatterBotCorpusTrainer)
-english_bot.train("chatterbot.corpus.english.greetings")
+chatbot.set_trainer(ChatterBotCorpusTrainer)
+chatbot.train("./training/")
 
+########################################################################################################################
 
 @app.route("/")
 def home():
@@ -17,8 +18,14 @@ def home():
 @app.route("/get")
 def get_bot_response():
     userText = request.args.get('msg')
-    return str(english_bot.get_response(userText))
+    botResponse = chatbot.get_response(userText)
 
+    if botResponse.confidence > 0.5:
+        return str(botResponse) + ' Confidence level: ' + str(botResponse.confidence)
+    else:
+        return ' I do not know what you mean.' + ' Confidence level: ' + str(botResponse.confidence)
+
+########################################################################################################################
 
 if __name__ == "__main__":
     app.run()
